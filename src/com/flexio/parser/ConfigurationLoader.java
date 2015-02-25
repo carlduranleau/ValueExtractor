@@ -13,9 +13,9 @@ public class ConfigurationLoader {
 
     final static private String CONFIG_DATABASE_PASSWORD = "databasePassword";
 
-    final static private String CONFIG_DATA_DIRECTORY = "databaseDataPath";
+    final static private String CONFIG_DATA_DIRECTORY = "sourceDataPath";
 
-    final static private String CONFIG_RULES_DIRECTORY = "databaseRulesPath";
+    final static private String CONFIG_RULES_DIRECTORY = "sourceRulesPath";
 
     public static Configuration load(
         final String pConfigurationPath)

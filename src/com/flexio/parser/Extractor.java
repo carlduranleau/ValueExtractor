@@ -1,29 +1,22 @@
 package com.flexio.parser;
 
-import java.io.FileInputStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.util.List;
-
 import com.flexio.parser.console.Console;
 
 public class Extractor
-    implements Runnable {
+    implements Runnable, DataSourceListener {
 
-	final static private String VERSION = "0.1"; 
+    final static private String VERSION = "0.1";
+
     final static private String CONFIGURATION_FILE = "extractor.ini";
 
     private Configuration configuration = null;
+
     private boolean serverEnabled = false;
-    
+
     private Console serverConsole;
-    private Thread serverConsoleThread;
-    
+
+    private DataSourceReader serverDataSourceReader;
+
     public Extractor(final Configuration pConfiguration) {
 
         this.configuration = pConfiguration;
@@ -34,9 +27,8 @@ public class Extractor
         throws Exception {
 
         final Extractor application = new Extractor(ConfigurationLoader.load(Extractor.CONFIGURATION_FILE));
-        
-        // Use only one thread for now. Will use a threadpool in the future.
-        Thread serverThread = new Thread(application);
+
+        final Thread serverThread = new Thread(application);
         serverThread.start();
 
     }
@@ -45,44 +37,59 @@ public class Extractor
     public void run() {
 
         try {
-            final Console console = new Console(this);
-            serverConsole = console;
-            serverEnabled = true;
-            serverConsole.print("Server started with configuration: " + getConfiguration());
-            serverConsole.print("Server started");
+            this.serverConsole = new Console(this);
+            this.serverEnabled = true;
+            this.serverConsole.print("Server started with configuration: " + getConfiguration());
 
-            serverConsoleThread = new Thread(console);
-            serverConsoleThread.start();
+            // Start console thread
+            this.serverConsole.start();
 
-            FileInputStream dataFileInputStream = new FileInputStream(configuration.getDataSourceDirectory());
-            Path dataFolder = Paths.get(configuration.getDataSourceDirectory());
-            WatchService watcher = FileSystems.getDefault().newWatchService();
-            dataFolder.register(watcher, StandardWatchEventKinds.ENTRY_CREATE);
-            WatchKey watckKey = watcher.take();
-            List<WatchEvent<?>> events = watckKey.pollEvents();
-            
-            while (serverEnabled) {
-            	Thread.sleep(1000);
-            	
+            // Start data source reader thread
+            this.serverDataSourceReader = new DataSourceReader(this, this, this.configuration.getDataSourceDirectory());
+            this.serverDataSourceReader.start();
+
+            this.serverConsole.print("Server started");
+
+            while (this.serverEnabled) {
+                Thread.sleep(1000);
             }
-        } catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			serverConsole.print("Server stopped");
-			serverConsoleThread.interrupt();
+        } catch (final Exception e) {
+            e.printStackTrace();
+            shutdown();
         }
     }
-    
-    public String getConfiguration () {
-    	return this.configuration.toString();
+
+    public Console getConsole() {
+
+        return this.serverConsole;
     }
 
-    public void shutdown () {
-    	serverConsole.print("Shutting down server...");
-    	serverEnabled = false;
+    public String getConfiguration() {
+
+        return this.configuration.toString();
     }
-    
+
+    public void shutdown() {
+
+        this.serverConsole.print("Shutting down server...");
+        this.serverEnabled = false;
+        this.serverConsole.shutdown();
+        this.serverDataSourceReader.shutdown();
+    }
+
     public String getVersion() {
-    	return VERSION;
+
+        return Extractor.VERSION;
+    }
+
+    @Override
+    public void onNewFile(
+        final String filePath) {
+
+        if (filePath == null) {
+            return;
+        }
+        this.serverConsole.print("New data file found: " + filePath);
+
     }
 }
