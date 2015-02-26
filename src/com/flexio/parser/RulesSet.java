@@ -8,8 +8,19 @@ import java.util.Properties;
 
 public class RulesSet {
 
+	private final static String RULES_FILE_EXTENSION = ".tpl";
     private String rulesFile = null;
     private List<Rule> rules = new ArrayList<Rule>();
+    private String dataFile;
+    
+    public static RulesSet create (final String pRulesFolder, final String pDataFile) throws Exception {
+    	
+    	NameParser name = NameParser.parse(pDataFile);
+    	
+    	RulesSet rulesSet = new RulesSet(pRulesFolder + name.getClientId() + RULES_FILE_EXTENSION);
+    	rulesSet.setDataFile(pDataFile);
+    	return rulesSet;
+    }
     
     public RulesSet(final String pRulesFile) throws Exception {
 
@@ -31,7 +42,15 @@ public class RulesSet {
 		}
     }
 
-    private List<Rule> getRules() {
+    public void setDataFile(String pFilename) {
+    	this.dataFile = pFilename;
+    }
+    
+    public String getDataFile() {
+    	return this.dataFile;
+    }
+    
+    public List<Rule> getRules() {
     	return rules;
     }
 }

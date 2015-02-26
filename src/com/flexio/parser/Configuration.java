@@ -4,7 +4,9 @@ public final class Configuration {
 
     private String dataSourceDirectory;
 
-    private String rulesSourceDirectory;
+    private String processedDirectory;
+
+	private String rulesSourceDirectory;
 
     private String databaseSchema;
 
@@ -24,6 +26,14 @@ public final class Configuration {
 
         this.dataSourceDirectory = dataSourceDirectory;
     }
+
+    public String getProcessedDirectory() {
+		return processedDirectory;
+	}
+
+	public void setProcessedDirectory(String processedDirectory) {
+		this.processedDirectory = processedDirectory;
+	}
 
     public String getRulesSourceDirectory() {
 
@@ -83,6 +93,7 @@ public final class Configuration {
     public String toString() {
     	StringBuilder sb = new StringBuilder();
 		sb.append(String.format("\nData source directory: %s", this.dataSourceDirectory));
+		sb.append(String.format("\nProcessed data directory: %s", this.processedDirectory));
 		sb.append(String.format("\nRules directory: %s", this.rulesSourceDirectory));
 		sb.append(String.format("\nDatabase schema: %s", this.databaseSchema));
 		sb.append(String.format("\nDatabase table: %s", this.databaseTable));

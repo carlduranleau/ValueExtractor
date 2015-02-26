@@ -15,6 +15,8 @@ public class ConfigurationLoader {
 
     final static private String CONFIG_DATA_DIRECTORY = "sourceDataPath";
 
+    final static private String CONFIG_PROCESSED_DIRECTORY = "processedDataPath";
+
     final static private String CONFIG_RULES_DIRECTORY = "sourceRulesPath";
 
     public static Configuration load(
@@ -35,6 +37,7 @@ public class ConfigurationLoader {
             prop.load(fis);
 
             config.setDataSourceDirectory(prop.getProperty(ConfigurationLoader.CONFIG_DATA_DIRECTORY, ""));
+            config.setProcessedDirectory(prop.getProperty(ConfigurationLoader.CONFIG_PROCESSED_DIRECTORY, ""));
             config.setRulesSourceDirectory(prop.getProperty(ConfigurationLoader.CONFIG_RULES_DIRECTORY, ""));
             config.setDatabaseSchema(prop.getProperty(ConfigurationLoader.CONFIG_DATABASE_SCHEMA, ""));
             config.setDatabaseTable(prop.getProperty(ConfigurationLoader.CONFIG_DATABASE_TABLE, ""));

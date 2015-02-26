@@ -1,11 +1,17 @@
 package com.flexio.parser;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Map;
+
 import com.flexio.parser.console.Console;
 
 public class Extractor
     implements Runnable, DataSourceListener {
 
-    final static private String VERSION = "0.1";
+    final static private String VERSION = "Release 0.1\nCopyright Flexio inc. 2015";
 
     final static private String CONFIGURATION_FILE = "extractor.ini";
 
@@ -89,7 +95,24 @@ public class Extractor
         if (filePath == null) {
             return;
         }
-        this.serverConsole.print("New data file found: " + filePath);
+        this.serverConsole.print("Parsing: " + filePath);
+        try {
+        	Map<String,String> data = RuleEngine.process(RulesSet.create(this.configuration.getRulesSourceDirectory(), filePath));
+        	
+        	for (String key : data.keySet()) {
+        		this.serverConsole.print(key+"="+data.get(key));
+        	}
+        	
+        	//TODO: This should be in the RuleEngine
+        	Path filename = Paths.get(filePath).getFileName();
+    		Files.move(Paths.get(filePath), Paths.get(this.configuration.getProcessedDirectory() + filename.toString()), StandardCopyOption.REPLACE_EXISTING);
 
+    		//TODO: Add database connection
+        	
+        } catch (Exception e) {
+        	e.printStackTrace();
+        	this.serverConsole.print(e.getMessage());
+        	this.serverConsole.print("Unable to process: " + filePath);
+        }
     }
 }

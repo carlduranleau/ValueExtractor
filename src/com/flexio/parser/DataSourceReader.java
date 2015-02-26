@@ -57,12 +57,17 @@ public class DataSourceReader
 
         try {
             while (this.readerEnabled) {
-                Thread.sleep(10000);
                 final File f = new File(this.dataSourcePath);
                 final File[] fileList = f.listFiles();
+                this.application.getConsole().print(String.format("%d unprocessed files found.", fileList.length));
                 for (final File file : fileList) {
-                    this.listener.onNewFile(file.getAbsolutePath());
+                	if (this.readerEnabled) {
+                		this.listener.onNewFile(file.getAbsolutePath());
+                	} else {
+                		shutdown();
+                	}
                 }
+                Thread.sleep(10000);
             }
         } catch (final Exception e) {
             shutdown();
