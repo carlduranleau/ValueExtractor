@@ -15,7 +15,9 @@ public class RuleEngine {
 		String fileContent = new String(fileData, "ISO-8859-1");
 		
 		Map<String,String> data = new HashMap<String,String>();
-		
+		data.put("receiptid", pRulesSet.getMetadata().getReceiptId());
+		data.put("clientid", pRulesSet.getMetadata().getClientId());
+		data.put("receiptdate", pRulesSet.getMetadata().getCreationDate().toString());
 		for (Rule rule : pRulesSet.getRules()) {
 			Pattern rulePattern = Pattern.compile(rule.getPattern(), Pattern.MULTILINE);
 			Matcher m = rulePattern.matcher(fileContent);

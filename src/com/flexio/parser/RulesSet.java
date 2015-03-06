@@ -1,6 +1,9 @@
 package com.flexio.parser;
 
 import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -12,18 +15,20 @@ public class RulesSet {
     private String rulesFile = null;
     private List<Rule> rules = new ArrayList<Rule>();
     private String dataFile;
+    private EntryMetadata metadata;
     
     public static RulesSet create (final String pRulesFolder, final String pDataFile) throws Exception {
     	
-    	NameParser name = NameParser.parse(pDataFile);
+    	NameParser name = NameParser.parse(Paths.get(pDataFile).getFileName().toString());
     	
-    	RulesSet rulesSet = new RulesSet(pRulesFolder + name.getClientId() + RULES_FILE_EXTENSION);
+    	RulesSet rulesSet = new RulesSet(pRulesFolder + name.getClientId() + RULES_FILE_EXTENSION, new EntryMetadata(name.getClientId(), name.getCreationDate(), name.getId()));
     	rulesSet.setDataFile(pDataFile);
     	return rulesSet;
     }
     
-    public RulesSet(final String pRulesFile) throws Exception {
+    public RulesSet(final String pRulesFile, EntryMetadata pMetadata) throws Exception {
 
+    	this.metadata = pMetadata;
         this.rulesFile = pRulesFile;
         load();
     }
@@ -53,4 +58,9 @@ public class RulesSet {
     public List<Rule> getRules() {
     	return rules;
     }
+
+	public EntryMetadata getMetadata() {
+		return metadata;
+	}
+    
 }

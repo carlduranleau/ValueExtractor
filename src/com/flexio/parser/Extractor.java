@@ -103,7 +103,7 @@ public class Extractor
         this.serverConsole.print("Parsing: " + filePath);
         try {
         	Map<String,String> data = RuleEngine.process(RulesSet.create(this.configuration.getRulesSourceDirectory(), filePath));
-        	
+
         	//for (String key : data.keySet()) {
         	//	this.serverConsole.print(key+"="+data.get(key));
         	//}
