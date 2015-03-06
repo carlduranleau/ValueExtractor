@@ -14,6 +14,8 @@ import java.nio.file.WatchService;
 public class DataSourceReader
     implements Runnable {
 
+	private static final int READER_PAUSE = 30000;
+	
     private final String dataSourcePath;
 
     private final DataSourceListener listener;
@@ -61,15 +63,18 @@ public class DataSourceReader
             while (this.readerEnabled) {
                 final File f = new File(this.dataSourcePath);
                 final File[] fileList = f.listFiles();
-                this.application.getConsole().print(String.format("%d unprocessed files found.", fileList.length));
-                for (final File file : fileList) {
-                	if (this.readerEnabled) {
-                		this.listener.onNewFile(file.getAbsolutePath());
-                	} else {
-                		shutdown();
-                	}
+                
+                if (fileList.length > 0) {
+	                this.application.getConsole().print(String.format("%d unprocessed files found.", fileList.length));
+	                for (final File file : fileList) {
+	                	if (this.readerEnabled) {
+	                		this.listener.onNewFile(file.getAbsolutePath());
+	                	} else {
+	                		shutdown();
+	                	}
+	                }
                 }
-                Thread.sleep(10000);
+                Thread.sleep(READER_PAUSE);
             }
         } catch (final Exception e) {
             shutdown();

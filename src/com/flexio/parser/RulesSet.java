@@ -45,6 +45,7 @@ public class RulesSet {
 			String pattern = prop.getProperty(field);
 			rules.add(new Rule(field,pattern));
 		}
+		fis.close();
     }
 
     public void setDataFile(String pFilename) {
