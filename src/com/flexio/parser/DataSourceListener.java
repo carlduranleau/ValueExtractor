@@ -2,7 +2,7 @@ package com.flexio.parser;
 
 public interface DataSourceListener {
 
-    void onNewFile(
+    boolean onNewFile(
         String filePath);
 
 }

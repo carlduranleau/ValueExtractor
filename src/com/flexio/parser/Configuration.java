@@ -8,7 +8,9 @@ public final class Configuration {
 
 	private String rulesSourceDirectory;
 
-    private String databaseSchema;
+	private String databaseHost;
+	
+	private String databaseSchema;
 
     private String databaseTable;
 
@@ -90,11 +92,20 @@ public final class Configuration {
         this.databasePassword = databasePassword;
     }
     
-    public String toString() {
+    public String getDatabaseHost() {
+		return databaseHost;
+	}
+
+	public void setDatabaseHost(String databaseHost) {
+		this.databaseHost = databaseHost;
+	}
+
+	public String toString() {
     	StringBuilder sb = new StringBuilder();
 		sb.append(String.format("\nData source directory: %s", this.dataSourceDirectory));
 		sb.append(String.format("\nProcessed data directory: %s", this.processedDirectory));
 		sb.append(String.format("\nRules directory: %s", this.rulesSourceDirectory));
+		sb.append(String.format("\nDatabase host: %s", this.databaseHost));
 		sb.append(String.format("\nDatabase schema: %s", this.databaseSchema));
 		sb.append(String.format("\nDatabase table: %s", this.databaseTable));
 		sb.append(String.format("\nDatabase username: %s", this.databaseUsername));

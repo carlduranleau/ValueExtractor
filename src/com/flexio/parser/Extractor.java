@@ -4,9 +4,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.sql.SQLException;
 import java.util.Map;
 
 import com.flexio.parser.console.Console;
+import com.flexio.parser.database.Database;
 
 public class Extractor
     implements Runnable, DataSourceListener {
@@ -23,9 +25,12 @@ public class Extractor
 
     private DataSourceReader serverDataSourceReader;
 
-    public Extractor(final Configuration pConfiguration) {
+    private Database database = null;
+    
+    public Extractor(final Configuration pConfiguration) throws ClassNotFoundException, SQLException {
 
         this.configuration = pConfiguration;
+        this.database = new Database(this.configuration.getDatabaseHost(), this.configuration.getDatabaseUsername(), this.configuration.getDatabasePassword(), this.configuration.getDatabaseSchema(), this.configuration.getDatabaseTable());
     }
 
     public static void main(
@@ -89,30 +94,36 @@ public class Extractor
     }
 
     @Override
-    public void onNewFile(
+    public boolean onNewFile(
         final String filePath) {
 
         if (filePath == null) {
-            return;
+            return false;
         }
         this.serverConsole.print("Parsing: " + filePath);
         try {
         	Map<String,String> data = RuleEngine.process(RulesSet.create(this.configuration.getRulesSourceDirectory(), filePath));
         	
-        	for (String key : data.keySet()) {
-        		this.serverConsole.print(key+"="+data.get(key));
-        	}
-        	
-        	//TODO: This should be in the RuleEngine
-        	Path filename = Paths.get(filePath).getFileName();
-    		Files.move(Paths.get(filePath), Paths.get(this.configuration.getProcessedDirectory() + filename.toString()), StandardCopyOption.REPLACE_EXISTING);
+        	//for (String key : data.keySet()) {
+        	//	this.serverConsole.print(key+"="+data.get(key));
+        	//}
 
-    		//TODO: Add database connection
+        	this.database.writeDataSet(data);
         	
+        	markAsProcessed(filePath);
+        	return true;
         } catch (Exception e) {
         	e.printStackTrace();
         	this.serverConsole.print(e.getMessage());
         	this.serverConsole.print("Unable to process: " + filePath);
         }
+        return false;
     }
+    
+	public void markAsProcessed (final String filePath) throws Exception {
+    	//TODO: This should be in the RuleEngine
+    	Path filename = Paths.get(filePath).getFileName();
+		Files.move(Paths.get(filePath), Paths.get(this.configuration.getProcessedDirectory() + filename.toString()), StandardCopyOption.REPLACE_EXISTING);
+		
+	}
 }

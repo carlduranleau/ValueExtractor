@@ -5,11 +5,13 @@ import java.util.Properties;
 
 public class ConfigurationLoader {
 
-    final static private String CONFIG_DATABASE_SCHEMA = "databaseSchema";
+    final static private String CONFIG_DATABASE_HOST = "databaseHost";
+
+	final static private String CONFIG_DATABASE_SCHEMA = "databaseSchema";
 
     final static private String CONFIG_DATABASE_TABLE = "databaseTable";
 
-    final static private String CONFIG_DATABASE_USERNAME = "databaseUser";
+    final static private String CONFIG_DATABASE_USERNAME = "databaseUsername";
 
     final static private String CONFIG_DATABASE_PASSWORD = "databasePassword";
 
@@ -36,6 +38,7 @@ public class ConfigurationLoader {
 
             prop.load(fis);
 
+            config.setDatabaseHost(prop.getProperty(ConfigurationLoader.CONFIG_DATABASE_HOST, ""));
             config.setDataSourceDirectory(prop.getProperty(ConfigurationLoader.CONFIG_DATA_DIRECTORY, ""));
             config.setProcessedDirectory(prop.getProperty(ConfigurationLoader.CONFIG_PROCESSED_DIRECTORY, ""));
             config.setRulesSourceDirectory(prop.getProperty(ConfigurationLoader.CONFIG_RULES_DIRECTORY, ""));

@@ -58,7 +58,7 @@ public class Console
     public void print(
         final String content) {
 
-        System.out.printf("\n%s: " + content, new Date().toString());
+        System.out.println("\n" + (new Date().toString()) + ": " + content);
         System.out.printf(this.CONSOLE_PROMPT);
     }
 
