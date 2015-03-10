@@ -1,5 +1,9 @@
 package com.flexio.parser.console;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.Date;
 
 import com.flexio.parser.Extractor;
@@ -7,6 +11,8 @@ import com.flexio.parser.Extractor;
 public class Console
     implements Runnable {
 
+	private final String LOG_FILE ="extractor.log";
+	
     private final String CONSOLE_PROMPT = "\n>";
 
     private final String COMMAND_QUIT = "quit";
@@ -25,6 +31,8 @@ public class Console
 
     private Thread thisThread;
 
+    private PrintWriter logFile;
+    
     public Console(final Extractor pApplication) {
 
         this.application = pApplication;
@@ -52,34 +60,75 @@ public class Console
             }
         } catch (final Exception e) {
             shutdown();
+        } finally {
+        	closeLogFile();
         }
     }
 
+    public void print(final String content, boolean toConsole) {
+    	if (toConsole) {
+    		this.javaConsole.printf(content);
+    	}
+    	print(content);
+    }
+    
     public void print(
         final String content) {
-
-        System.out.println("\n" + (new Date().toString()) + ": " + content);
+    	
+    	String logLine = "\n" + (new Date().toString()) + ": " + content;
+    	
+        System.out.println(logLine);
+        
+        writeToLog(logLine);
+        
         System.out.printf(this.CONSOLE_PROMPT);
     }
+    
+    private void writeToLog(String content) {
+    	try {
+    		openLogFile();
+    		String[]lines = content.split("\n");
+    		for(String line : lines) {
+    			this.logFile.println(line);
+    		}
+    	} catch (Exception e) {}
+    }
+    
+    private void openLogFile() {
+    	if (this.logFile == null) {
+    		try {
+    			this.logFile = new PrintWriter(new BufferedWriter(new FileWriter(LOG_FILE, true)));
+    		} catch (Exception e) {}
+    	}
+    }
 
+    private void closeLogFile() {
+    	if (this.logFile != null) {
+    		try {
+    			this.logFile.close();
+    		} catch (Exception e) {}
+    	}
+    }
+    
     private boolean doCommand(
         final String command) {
 
         if (command == null) {
             return false;
         }
+        print(command + "\n");
         if (command.equalsIgnoreCase(this.COMMAND_QUIT)) {
             this.consoleEnabled = false;
             this.application.shutdown();
         } else if (command.equalsIgnoreCase(this.COMMAND_VERSION)) {
-            this.javaConsole.printf("\n" + this.application.getVersion() + "\n");
+            print("\n" + this.application.getVersion() + "\n", true);
         } else if (command.equalsIgnoreCase(this.COMMAND_CONFIG)) {
-            this.javaConsole.printf("\n" + this.application.getConfiguration() + "\n");
+            print("\n" + this.application.getConfiguration() + "\n", true);
         } else if (command.equalsIgnoreCase(this.COMMAND_HELP)) {
-            this.javaConsole.printf("\n" + doHelp() + "\n");
+            print("\n" + doHelp() + "\n", true);
         } else {
             if (!command.equals("")) {
-                this.javaConsole.printf("Unknown command '%s'", command);
+                print("Unknown command '" + command + "'", true);
             }
         }
         return true;
